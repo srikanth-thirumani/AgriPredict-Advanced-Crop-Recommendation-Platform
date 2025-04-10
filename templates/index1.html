@@ -1,0 +1,509 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Crop Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3b8a3e;
+            --secondary-color: #72bb53;
+            --accent-color: #f0f7ed;
+            --dark-color: #2c3e50;
+            --light-color: #f4f4f4;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9fafb;
+            color: var(--dark-color);
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+        }
+
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+            border: none;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            background-color: var(--secondary-color);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #2c7230;
+            border-color: #2c7230;
+        }
+
+        .bg-light-green {
+            background-color: var(--accent-color);
+        }
+
+        .info-box {
+            border-left: 4px solid var(--secondary-color);
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 20px 0;
+            margin-top: 30px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .results-section {
+            display: none;
+        }
+
+        .weather-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+        }
+
+        /* Custom animation for spinner */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(59, 138, 62, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        /* Progress bar styles */
+        .progress-bar {
+            background-color: var(--secondary-color);
+        }
+
+        /* Chart containers */
+        .chart-container {
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        /* Custom list style */
+        .custom-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .custom-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .custom-list li:last-child {
+            border-bottom: none;
+        }
+
+        .custom-list li i {
+            color: var(--secondary-color);
+            margin-right: 10px;
+        }
+
+        /* Map container */
+        #map-container {
+            height: 400px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        /* Result cards */
+        .result-card {
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-card h4 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Crop probability bar */
+        .prob-bar {
+            height: 10px;
+            border-radius: 5px;
+            background-color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+
+        .crop-name {
+            font-weight: 600;
+        }
+
+        /* Weather cards */
+        .weather-data {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .weather-value {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        /* Recommendation section */
+        .recommendation-content {
+            background-color: #f9fafb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="fas fa-seedling me-2"></i>AgriTech Advisor</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/"><i class="fas fa-home me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/train"><i class="fas fa-cogs me-1"></i> Train Models</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-lg-12">
+                <div class="card bg-light-green">
+                    <div class="card-body">
+                        <h2 class="card-title"><i class="fas fa-leaf me-2"></i>Advanced Crop Management System</h2>
+                        <p class="card-text">Get comprehensive recommendations for crop selection, production estimates, fertilizer requirements, and weather insights to optimize your agricultural yield.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Form -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-edit me-2"></i>Enter Your Farm Details
+                    </div>
+                    <div class="card-body">
+                        <form id="prediction-form">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="location" class="form-label"><i class="fas fa-map-marker-alt me-1"></i>Location (City or Region)</label>
+                                    <input type="text" class="form-control" id="location" name="location" placeholder="Enter your location" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="soil_type" class="form-label"><i class="fas fa-mountain me-1"></i>Soil Type</label>
+                                    <select class="form-select" id="soil_type" name="soil_type" required>
+                                        <option value="" selected disabled>Select soil type...</option>
+                                        {% for soil in soil_types %}
+                                        <option value="{{ soil }}">{{ soil }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="season" class="form-label"><i class="fas fa-cloud-sun me-1"></i>Growing Season</label>
+                                    <select class="form-select" id="season" name="season" required>
+                                        <option value="" selected disabled>Select season...</option>
+                                        <option value="Kharif">Kharif (Monsoon)</option>
+                                        <option value="Rabi">Rabi (Winter)</option>
+                                        <option value="Zaid">Zaid (Summer)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="area" class="form-label"><i class="fas fa-ruler-combined me-1"></i>Land Area (hectares)</label>
+                                    <input type="number" class="form-control" id="area" name="area" min="0.1" max="100" step="0.1" value="1.0" required>
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-md-4">
+                                    <label for="nitrogen" class="form-label"><i class="fas fa-flask me-1"></i>Nitrogen (N) Content</label>
+                                    <input type="number" class="form-control" id="nitrogen" name="nitrogen" min="0" max="200" value="50" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="phosphorus" class="form-label"><i class="fas fa-flask me-1"></i>Phosphorus (P) Content</label>
+                                    <input type="number" class="form-control" id="phosphorus" name="phosphorus" min="0" max="200" value="50" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="potassium" class="form-label"><i class="fas fa-flask me-1"></i>Potassium (K) Content</label>
+                                    <input type="number" class="form-control" id="potassium" name="potassium" min="0" max="200" value="50" required>
+                                </div>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary" id="predict-button">
+                                    <i class="fas fa-search me-2"></i>Get Comprehensive Recommendations
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div class="loading" id="loading-section">
+            <div class="loading-spinner mb-3"></div>
+            <h4>Analyzing your farm data...</h4>
+            <p>Please wait while we process your information and generate comprehensive recommendations.</p>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="results-section">
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h3 class="mb-4"><i class="fas fa-chart-line me-2"></i>Comprehensive Agricultural Insights</h3>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Crop Recommendation -->
+                <div class="col-lg-6">
+                    <div class="result-card">
+                        <h4><i class="fas fa-seedling me-2"></i>Crop Recommendation</h4>
+                        <div class="alert alert-success mb-4">
+                            <h5 class="mb-0">Recommended Crop: <span id="recommended-crop">-</span></h5>
+                        </div>
+                        
+                        <h5 class="mb-3">Top Crop Matches</h5>
+                        <div id="crop-probabilities" class="mb-4"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-box">
+                                    <h6><i class="fas fa-balance-scale me-1"></i>Estimated Production</h6>
+                                    <p class="fs-5 fw-bold" id="total-production">- tons</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-box">
+                                    <h6><i class="fas fa-tachometer-alt me-1"></i>Yield per Hectare</h6>
+                                    <p class="fs-5 fw-bold" id="yield-per-hectare">- tons/hectare</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather Insights -->
+                <div class="col-lg-6">
+                    <div class="result-card">
+                        <h4><i class="fas fa-cloud-sun me-2"></i>Weather Insights</h4>
+                        
+                        <div class="weather-data">
+                            <i class="fas fa-temperature-high weather-icon text-danger"></i>
+                            <div>
+                                <p class="mb-0">Temperature</p>
+                                <span class="weather-value" id="temperature">-°C</span>
+                            </div>
+                        </div>
+                        
+                        <div class="weather-data">
+                            <i class="fas fa-tint weather-icon text-primary"></i>
+                            <div>
+                                <p class="mb-0">Humidity</p>
+                                <span class="weather-value" id="humidity">-%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="weather-data">
+                            <i class="fas fa-cloud weather-icon text-secondary"></i>
+                            <div>
+                                <p class="mb-0">Weather Condition</p>
+                                <span class="weather-value" id="weather-description">-</span>
+                            </div>
+                        </div>
+                        
+                        <div class="weather-data">
+                            <i class="fas fa-wind weather-icon text-info"></i>
+                            <div>
+                                <p class="mb-0">Wind Speed</p>
+                                <span class="weather-value" id="wind-speed">- m/s</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fertilizer Recommendation -->
+            <div class="row mt-3">
+                <div class="col-lg-12">
+                    <div class="result-card">
+                        <h4><i class="fas fa-fill-drip me-2"></i>Fertilizer Recommendation</h4>
+                        <div class="recommendation-content" id="fertilizer-recommendation">
+                            <!-- Content will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location Map -->
+            <div class="row mt-3">
+                <div class="col-lg-12">
+                    <div class="result-card">
+                        <h4><i class="fas fa-map-marked-alt me-2"></i>Location Map</h4>
+                        <div id="map-container">
+                            <!-- Map will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><i class="fas fa-seedling me-2"></i>AgriTech Advisor &copy; 2025</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>Advanced Crop Management System</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const predictionForm = document.getElementById('prediction-form');
+            const loadingSection = document.getElementById('loading-section');
+            const resultsSection = document.getElementById('results-section');
+
+            predictionForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Show loading indicator
+                loadingSection.style.display = 'block';
+                resultsSection.style.display = 'none';
+                
+                // Get form data
+                const formData = new FormData(predictionForm);
+                
+                // Send API request
+                fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Hide loading indicator
+                    loadingSection.style.display = 'none';
+                    
+                    if (data.status === 'success') {
+                        // Display results
+                        resultsSection.style.display = 'block';
+                        
+                        // Update crop recommendation
+                        document.getElementById('recommended-crop').textContent = data.recommended_crop;
+                        document.getElementById('total-production').textContent = data.production + ' tons';
+                        document.getElementById('yield-per-hectare').textContent = data.yield_per_hectare + ' tons/hectare';
+                        
+                        // Update weather insights
+                        document.getElementById('temperature').textContent = data.weather.temperature + '°C';
+                        document.getElementById('humidity').textContent = data.weather.humidity + '%';
+                        document.getElementById('weather-description').textContent = data.weather.description;
+                        document.getElementById('wind-speed').textContent = data.weather.wind_speed + ' m/s';
+                        
+                        // Update fertilizer recommendation using marked for Markdown rendering
+                        document.getElementById('fertilizer-recommendation').innerHTML = marked.parse(data.fertilizer_recommendation);
+                        
+                        // Update map
+                        document.getElementById('map-container').innerHTML = data.map_html;
+                        
+                        // Display crop probabilities
+                        const cropProbDiv = document.getElementById('crop-probabilities');
+                        cropProbDiv.innerHTML = '';
+                        
+                        data.crop_probabilities.forEach(item => {
+                            const prob = item.probability;
+                            const width = Math.max(5, prob); // Ensure at least 5% width for visibility
+                            
+                            const probHtml = `
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="crop-name">${item.crop}</span>
+                                        <span>${prob.toFixed(2)}%</span>
+                                    </div>
+                                    <div class="prob-bar" style="width: ${width}%"></div>
+                                </div>
+                            `;
+                            
+                            cropProbDiv.innerHTML += probHtml;
+                        });
+                        
+                        // Scroll to results
+                        resultsSection.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        // Show error
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    loadingSection.style.display = 'none';
+                    alert('Error: ' + error.message);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
