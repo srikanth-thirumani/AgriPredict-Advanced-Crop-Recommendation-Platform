@@ -165,4 +165,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 📞 Contact
 
-Project Link: [https://github.com/srikanth-thirumani/crop-recommendation-system](https://github.com/srikanth-thirumani/crop-recommendation-system)
+Project Link: [https://github.com/srikanth-thirumani/crop-recommendation-system](https://github.com/srikanth-thirumani/AgriPredict-Advanced-Crop-Recommendation-Platform)
